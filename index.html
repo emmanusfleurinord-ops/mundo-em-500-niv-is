@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>500 Níveis — O Mundo</title>
+<style>
+  :root { --blue:#5c9eff; --green:#2e7d32; --ink:#1a237e; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #e8eaf6;
+    min-height: 100vh;
+    padding: 16px 12px 40px;
+    background-color: #050816;
+    background-image:
+      radial-gradient(1.5px 1.5px at 8% 12%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 22% 40%, rgba(255,255,255,.9), transparent),
+      radial-gradient(1px 1px at 35% 18%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 48% 55%, rgba(255,255,255,.85), transparent),
+      radial-gradient(1px 1px at 62% 22%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 75% 70%, rgba(255,255,255,.9), transparent),
+      radial-gradient(1px 1px at 88% 30%, #fff, transparent),
+      radial-gradient(1.5px 1.5px at 15% 78%, rgba(255,255,255,.8), transparent),
+      radial-gradient(1px 1px at 55% 88%, #fff, transparent),
+      radial-gradient(2px 2px at 92% 60%, rgba(180,200,255,.95), transparent),
+      radial-gradient(ellipse 120% 80% at 50% -10%, rgba(90,40,180,.45), transparent 55%),
+      radial-gradient(ellipse 80% 50% at 80% 100%, rgba(20,60,160,.35), transparent 50%),
+      radial-gradient(ellipse 60% 40% at 10% 90%, rgba(120,20,140,.25), transparent 50%),
+      linear-gradient(180deg, #070b1f 0%, #12082e 40%, #0a1535 70%, #050816 100%);
+    background-attachment: fixed;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { text-align: center; color: #b3e5fc; font-size: 24px; margin: 6px 0 4px; text-shadow: 0 0 18px rgba(100,180,255,.5); }
+  .lead { text-align: center; color: #c5cae9; margin: 0 0 12px; font-size: 15px; }
+  .topbar, .nav {
+    display: flex; justify-content: center; align-items: center;
+    gap: 8px; flex-wrap: wrap; margin-bottom: 10px;
+  }
+  .badge, .cat {
+    background: rgba(255,255,255,.92); border-radius: 999px; padding: 6px 12px;
+    font-weight: 700; font-size: 14px; box-shadow: 0 1px 4px rgba(0,0,0,.25);
+    color: #1a237e;
+  }
+  .cat { background: #e3f2fd; color: #0d47a1; }
+  .bar { height: 10px; background: rgba(255,255,255,.2); border-radius: 99px; overflow: hidden; margin: 8px 0 14px; }
+  .bar > div { height: 100%; background: linear-gradient(90deg, #7c4dff, #40c4ff); width: 0; }
+  .card {
+    background: rgba(255,255,255,.96); border-radius: 16px; padding: 18px;
+    box-shadow: 0 8px 28px rgba(0,0,0,.35), 0 0 40px rgba(80,120,255,.15);
+  }
+  .note { color: #b0bec5 !important; }
+  label { color: #c5cae9; }
+  select { background: #fff; }
+  .q { font-size: 20px; line-height: 1.35; color: var(--ink); margin: 0 0 12px; min-height: 28px; }
+  .pic {
+    display: none; margin: 0 auto 12px; max-width: 100%;
+    background: #eceff1; border-radius: 12px; padding: 10px; text-align: center;
+  }
+  .pic img {
+    max-width: 280px; width: 100%; max-height: 180px; object-fit: contain;
+    border-radius: 8px; background: #fff;
+  }
+  .emoji-big {
+    font-size: 96px; line-height: 1.2; text-align: center;
+    padding: 12px 0; user-select: none;
+  }
+  input[type="text"] {
+    width: 100%; font-size: 20px; padding: 12px 14px; border: 2px solid #90caf9;
+    border-radius: 10px; text-align: center; font-weight: 700;
+  }
+  input[type="text"]:focus { outline: none; border-color: var(--blue); background: #fffde7; }
+  .btns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 14px; }
+  button {
+    border: 0; border-radius: 10px; padding: 10px 14px; font-size: 15px;
+    font-weight: 700; cursor: pointer; color: #fff;
+  }
+  .ok { background: var(--green); }
+  .hint { background: #ef6c00; }
+  .next { background: var(--blue); }
+  .ghost { background: #607d8b; }
+  .msg { text-align: center; min-height: 28px; margin-top: 12px; font-weight: 700; font-size: 17px; }
+  .answer-box {
+    display: none; margin-top: 14px; background: #fff3e0; border: 3px solid #ef6c00;
+    border-radius: 12px; padding: 16px 14px; text-align: center; font-size: 16px;
+    color: #e65100; font-weight: 600; line-height: 1.4;
+  }
+  .answer-box .ans-label {
+    display: block; font-size: 14px; color: #bf360c; margin-bottom: 6px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .answer-box .ans-value {
+    display: block; font-size: 28px; color: #1a237e; font-weight: 800;
+    background: #fff; border-radius: 10px; padding: 10px 12px; margin-top: 4px;
+    border: 2px solid #ffcc80; word-break: break-word;
+  }
+  .answer-box .ans-note {
+    display: block; margin-top: 8px; font-size: 13px; color: #6d4c41; font-weight: 500;
+  }
+  .info-box {
+    display: none; margin-top: 12px; background: #e8f5e9; border: 2px solid #81c784;
+    border-radius: 10px; padding: 12px 14px; text-align: left; font-size: 15px; color: #1b5e20; line-height: 1.45;
+  }
+  .info-box .ttl { font-weight: 700; color: #0d47a1; margin-bottom: 4px; }
+  .nav input { width: 72px; text-align: center; font-size: 16px; padding: 8px; border-radius: 8px; border: 1px solid #bbb; }
+  .note { text-align: center; color: #555; font-size: 13px; margin-top: 16px; }
+  select { font-size: 15px; padding: 6px 8px; border-radius: 8px; border: 1px solid #90caf9; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🌍 500 níveis × 30 perguntas</h1>
+  <p class="lead">Cada nível mistura <b>animais, família, futebol, espaço, história, geografia, bandeiras e capitais</b>. Às vezes aparece só a imagem. Se não souber, aperte <b>Ver resposta</b> (a pergunta é anulada).</p>
+  <p style="text-align:center;margin:0 0 12px">
+    <label for="filtro"><b>Tema:</b></label>
+    <select id="filtro" onchange="applyFilter()">
+      <option value="todos">Mistura de tudo</option>
+      <option value="Animais">Animais</option>
+      <option value="Família">Família</option>
+      <option value="Esporte">Futebol e esportes</option>
+      <option value="Espaço">Espaço e planetas</option>
+      <option value="História">História das guerras mundiais</option>
+      <option value="Geografia">Geografia</option>
+      <option value="Bandeiras">Bandeiras</option>
+      <option value="Capitais">Capitais</option>
+      <option value="Ciência">Ciência e natureza</option>
+    </select>
+  </p>
+  <div class="topbar">
+    <span class="badge" id="lvl">Nível 1 / 500</span>
+    <span class="badge" id="pq">Pergunta 1 / 30</span>
+    <span class="cat" id="cat">Geografia</span>
+    <span class="badge" id="score">Acertos: 0</span>
+  </div>
+  <div class="bar"><div id="prog"></div></div>
+  <div class="card">
+    <p class="q" id="q"></p>
+    <div class="pic" id="pic"><img id="img" alt="imagem da pergunta"></div>
+    <input type="text" id="ans" autocomplete="off" placeholder="Digite sua resposta">
+    <div class="btns">
+      <button class="ok" onclick="check()">Verificar</button>
+      <button class="hint" onclick="reveal()">Ver resposta</button>
+      <button class="ghost" onclick="speakQuestion()">Ouvir pergunta</button>
+      <button class="ghost" onclick="clearAns()">Limpar</button>
+      <button class="next" onclick="nextQ()">Próxima</button>
+    </div>
+    <div class="msg" id="msg"></div>
+    <div class="answer-box" id="box"></div>
+    <div class="info-box" id="info"></div>
+  </div>
+  <div class="nav">
+    <button class="ghost" onclick="prevQ()">◀ Anterior</button>
+    <label>Nível <input id="jump" type="number" min="1" max="500" value="1"></label>
+    <button class="next" onclick="jumpTo()">Ir</button>
+  </div>
+  <p class="note">O jogo <b>salva sozinho</b> o nível, a pergunta e os acertos neste aparelho. Se você fechar o computador e voltar, continua de onde parou (no mesmo navegador e no mesmo site ou arquivo). A voz <b>lê a pergunta</b> e também diz “Acertou” ou “Errou”. Use o botão <b>Ouvir pergunta</b> para repetir. Ligue o som.</p>
+  <p style="text-align:center;margin-top:8px"><button class="ghost" onclick="resetProgress()">Recomeçar do zero</button></p>
+</div>
+<script>
+function N(s){
+  return (s||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+}
+function ok(user, accept){
+  const u = N(user);
+  return String(accept).split('|').some(a => N(a) === u);
+}
+function speak(text, rate){
+  if (!window.speechSynthesis || !text) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(String(text));
+  u.lang = 'pt-BR';
+  u.rate = rate || 0.95;
+  u.pitch = 1;
+  const voices = window.speechSynthesis.getVoices();
+  const pt = voices.find(v => /pt-BR|pt_BR/i.test(v.lang)) || voices.find(v => /^pt/i.test(v.lang));
+  if (pt) u.voice = pt;
+  window.speechSynthesis.speak(u);
+}
+function questionText(item){
+  if (!item) return '';
+  if (item.only && item.img) return 'O que aparece nesta imagem? Qual país tem esta bandeira?';
+  if (item.only) return 'O que aparece nesta imagem?';
+  return item.q || '';
+}
+function speakQuestion(){
+  try {
+    const item = cur();
+    speak(questionText(item), 0.9);
+  } catch (e) {}
+}
+if (window.speechSynthesis) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = function(){ window.speechSynthesis.getVoices(); };
+}
+function flag(iso){ return 'https://flagcdn.com/w320/' + iso + '.png'; }
+
+const PAIS_INFO = {};
+const PLANETA_INFO = {
+  'Mercúrio':'Mercúrio é o planeta mais próximo do Sol. É pequeno, quente de dia e muito frio à noite.',
+  'Vênus':'Vênus é o segundo planeta a partir do Sol. É muito quente e coberto por nuvens densas.',
+  'Terra':'A Terra é o nosso planeta. Tem água líquida, ar e é o único lugar conhecido com vida.',
+  'Marte':'Marte é chamado de planeta vermelho por causa do solo com ferro. Cientistas estudam se já teve água.',
+  'Júpiter':'Júpiter é o maior planeta do Sistema Solar. É um gigante de gás e tem muitas luas.',
+  'Saturno':'Saturno é famoso pelos anéis feitos de gelo e pedra. Também é um planeta gigante de gás.',
+  'Urano':'Urano é um planeta gelado e azulado. Gira “deitado” em relação aos outros planetas.',
+  'Netuno':'Netuno é o planeta mais distante do Sol no grupo dos oito. É azul e tem ventos muito fortes.',
+  'Lua':'A Lua é o satélite natural da Terra. Ela ilumina a noite e ajuda a formar as marés no mar.',
+  'Sol':'O Sol é a estrela do nosso Sistema Solar. Dá luz e calor que permitem a vida na Terra.'
+};
+const ANIMAL_INFO = {
+  'Leão':'O leão vive na África, em grupos chamados alcateias ou bandos. É um grande felino carnívoro.',
+  'Elefante':'O elefante é o maior animal terrestre. Usa a tromba para beber água, cheirar e pegar comida.',
+  'Girafa':'A girafa é o animal terrestre mais alto. O pescoço longo ajuda a comer folhas no alto das árvores.',
+  'Pinguim':'Os pinguins são aves que não voam. Nadadores ótimos, muitos vivem em regiões frias.',
+  'Tigre':'O tigre é o maior felino do mundo. Tem listras únicas e vive em partes da Ásia.',
+  'Urso':'Os ursos são mamíferos fortes. Alguns hibernam no inverno e comem frutas, peixes ou mel.',
+  'Cachorro':'O cachorro é um animal de estimação amigo do ser humano há milhares de anos.',
+  'Gato':'O gato é ágil, enxerga bem no escuro e é um animal de estimação muito comum.',
+  'Cavalo':'O cavalo ajudou o ser humano no transporte e no trabalho no campo por muitos séculos.',
+  'Vaca':'A vaca é um animal de fazenda. Dá leite, usado para queijo, iogurte e manteiga.',
+  'Baleia':'A baleia é um mamífero marinho. A baleia-azul é o maior animal que já existiu na Terra.',
+  'Golfinho':'O golfinho é inteligente, vive no mar e se comunica com sons. É um mamífero, não um peixe.',
+  'Coruja':'A coruja caça à noite. Tem ótima visão e audição e consegue girar bem a cabeça.',
+  'Abelha':'A abelha produz mel e ajuda a polinizar flores, o que é importante para frutas e plantas.',
+  'Borboleta':'A borboleta começa a vida como lagarta e depois se transforma. Ajuda a polinizar flores.',
+  'Macaco':'Os macacos são primatas. Muitos vivem em grupos e são muito ágeis nas árvores.',
+  'Coelho':'O coelho tem orelhas longas e dentes que não param de crescer. Come plantas.',
+  'Sapo':'O sapo é um anfíbio: vive na água e na terra. Come insetos com a língua rápida.',
+  'Peixe':'Os peixes vivem na água e respiram com guelras. Existem milhares de espécies no mundo.',
+  'Pássaro':'As aves (pássaros) têm penas. A maioria voa, mas algumas, como o pinguim, não voam.'
+};
+const EXTRA_INFO = {
+  '1914':'A Primeira Guerra Mundial começou em 1914, na Europa, e durou até 1918.',
+  '1918':'Em 1918 terminou a Primeira Guerra Mundial. Em 11 de novembro houve o Armistício.',
+  '1919':'Em 1919 foi assinado o Tratado de Versalhes, um acordo de paz após a Primeira Guerra.',
+  '1917':'Os Estados Unidos entraram na Primeira Guerra Mundial em 1917.',
+  '1939':'A Segunda Guerra Mundial começou em 1939, quando a Alemanha invadiu a Polônia.',
+  '1945':'A Segunda Guerra Mundial terminou em 1945. No mesmo ano foi criada a ONU.',
+  '1941':'Os Estados Unidos entraram na Segunda Guerra em 1941, após o ataque a Pearl Harbor.',
+  '1944':'Em 1944 aconteceu o Dia D, o desembarque dos Aliados na Normandia, na França.',
+  '1942':'O Brasil entrou na Segunda Guerra Mundial em 1942 e enviou soldados à Itália.',
+  'ONU':'A ONU (Organização das Nações Unidas) foi criada em 1945 para promover a paz e a cooperação.',
+  'Liga das Nações':'A Liga das Nações surgiu após a Primeira Guerra. Depois da Segunda Guerra veio a ONU.',
+  '8':'Hoje contamos 8 planetas no Sistema Solar. Plutão passou a ser classificado como planeta anão.',
+  '1969':'Em 1969, a missão Apollo 11 levou o ser humano à Lua pela primeira vez.',
+  '1961':'Em 1961, Iuri Gagarin se tornou o primeiro ser humano a viajar ao espaço.',
+  'NASA':'A NASA é a agência espacial dos Estados Unidos, responsável por missões e pesquisas no espaço.',
+  'Pacífico':'O Oceano Pacífico é o maior oceano da Terra e cobre uma área enorme do planeta.',
+  'Nilo':'O rio Nilo, na África, é um dos rios mais longos do mundo e atravessa vários países.',
+  'Amazonas':'O rio Amazonas fica na América do Sul e corta a maior floresta tropical do mundo.',
+  'Everest':'O monte Everest, no Himalaia, é a montanha mais alta da Terra acima do nível do mar.',
+  '11':'No futebol de campo, cada time joga com 11 jogadores, incluindo o goleiro.',
+  'Gol':'Gol é quando a bola entra inteira no gol adversário e o time marca um ponto.',
+  'Futebol':'O futebol é o esporte mais popular do Brasil e de muitos países do mundo.',
+  'Oxigênio':'O oxigênio (O₂) é o gás que a maioria dos seres vivos precisa para respirar.',
+  'Coração':'O coração é o órgão que bombeia o sangue para todo o corpo.',
+  'Cérebro':'O cérebro controla pensamentos, movimentos, memória e os sentidos.'
+};
+
+function mainAnswer(item){
+  return String(item.a || '').split('|')[0];
+}
+
+function explain(item){
+  const ans = mainAnswer(item);
+  const cat = item.cat || '';
+  if (PAIS_INFO[ans]) return PAIS_INFO[ans];
+  for (const p of Object.keys(PAIS_INFO)) {
+    if (N(ans) === N(p) || String(item.a).split('|').some(x => N(x) === N(p))) return PAIS_INFO[p];
+  }
+  if (PLANETA_INFO[ans]) return PLANETA_INFO[ans];
+  for (const p of Object.keys(PLANETA_INFO)) {
+    if (String(item.a).split('|').some(x => N(x) === N(p))) return PLANETA_INFO[p];
+  }
+  if (ANIMAL_INFO[ans]) return ANIMAL_INFO[ans];
+  for (const p of Object.keys(ANIMAL_INFO)) {
+    if (String(item.a).split('|').some(x => N(x) === N(p))) return ANIMAL_INFO[p];
+  }
+  if (EXTRA_INFO[ans]) return EXTRA_INFO[ans];
+  for (const p of Object.keys(EXTRA_INFO)) {
+    if (String(item.a).split('|').some(x => N(x) === N(p))) return EXTRA_INFO[p];
+  }
+  if (cat === 'Família') return 'Na família, cada nome (pai, mãe, tio, avô…) mostra o parentesco entre as pessoas.';
+  if (cat === 'Esporte') return 'Esportes têm regras, times e competições. Treinar e respeitar o adversário fazem parte do jogo.';
+  if (cat === 'Ciência') return 'A ciência observa a natureza e faz experiências para explicar como as coisas funcionam.';
+  if (cat === 'História') return 'A história estuda o passado dos povos, com datas, lugares e decisões que mudaram o mundo.';
+  if (cat === 'Geografia') return 'A geografia estuda lugares da Terra: países, continentes, rios, oceanos e climas.';
+  if (cat === 'Capitais' || cat === 'Bandeiras') return 'Cada país tem uma capital (cidade principal do governo) e uma bandeira que o representa.';
+  if (cat === 'Espaço') return 'O espaço é tudo além da Terra: estrelas, planetas, luas e galáxias no Universo.';
+  if (cat === 'Animais') return 'Os animais fazem parte da natureza. Cada espécie tem habitat, alimentação e características próprias.';
+  return 'Quanto mais você pratica, mais fácil fica lembrar fatos sobre o mundo.';
+}
+
+function showInfo(item){
+  const el = document.getElementById('info');
+  if (!el) return;
+  const text = explain(item);
+  el.style.display = 'block';
+  el.innerHTML = '<div class="ttl">📚 Saiba mais</div>' + text;
+}
+
+const PAISES = [
+  ['Afeganistão','Cabul','af','Ásia'],['África do Sul','Pretória','za','África'],
+  ['Albânia','Tirana','al','Europa'],['Alemanha','Berlim','de','Europa'],
+  ['Andorra','Andorra-a-Velha','ad','Europa'],['Angola','Luanda','ao','África'],
+  ['Arábia Saudita','Riade','sa','Ásia'],['Argélia','Argel','dz','África'],
+  ['Argentina','Buenos Aires','ar','América do Sul'],['Armênia','Erevã','am','Ásia'],
+  ['Austrália','Camberra','au','Oceania'],['Áustria','Viena','at','Europa'],
+  ['Azerbaijão','Baku','az','Ásia'],['Bahamas','Nassau','bs','América do Norte'],
+  ['Bangladesh','Daca','bd','Ásia'],['Barbados','Bridgetown','bb','América do Norte'],
+  ['Bélgica','Bruxelas','be','Europa'],['Belize','Belmopan','bz','América do Norte'],
+  ['Benim','Porto-Novo','bj','África'],['Bielorrússia','Minsk','by','Europa'],
+  ['Bolívia','La Paz','bo','América do Sul'],['Bósnia e Herzegovina','Sarajevo','ba','Europa'],
+  ['Botsuana','Gaborone','bw','África'],['Brasil','Brasília','br','América do Sul'],
+  ['Brunei','Bandar Seri Begawan','bn','Ásia'],['Bulgária','Sófia','bg','Europa'],
+  ['Burquina Faso','Uagadugu','bf','África'],['Burundi','Gitega','bi','África'],
+  ['Butão','Timbu','bt','Ásia'],['Cabo Verde','Praia','cv','África'],
+  ['Camarões','Iaundé','cm','África'],['Camboja','Phnom Penh','kh','Ásia'],
+  ['Canadá','Ottawa','ca','América do Norte'],['Catar','Doha','qa','Ásia'],
+  ['Cazaquistão','Astana','kz','Ásia'],['Chade','NDjamena','td','África'],
+  ['Chile','Santiago','cl','América do Sul'],['China','Pequim','cn','Ásia'],
+  ['Chipre','Nicósia','cy','Europa'],['Colômbia','Bogotá','co','América do Sul'],
+  ['Comores','Moroni','km','África'],['Coreia do Sul','Seul','kr','Ásia'],
+  ['Costa do Marfim','Iamussucro','ci','África'],['Costa Rica','San José','cr','América do Norte'],
+  ['Croácia','Zagreb','hr','Europa'],['Cuba','Havana','cu','América do Norte'],
+  ['Dinamarca','Copenhague','dk','Europa'],['Djibuti','Djibuti','dj','África'],
+  ['Egito','Cairo','eg','África'],['El Salvador','San Salvador','sv','América do Norte'],
+  ['Emirados Árabes Unidos','Abu Dhabi','ae','Ásia'],['Equador','Quito','ec','América do Sul'],
+  ['Eritreia','Asmara','er','África'],['Eslováquia','Bratislava','sk','Europa'],
+  ['Eslovênia','Liubliana','si','Europa'],['Espanha','Madrid','es','Europa'],
+  ['Estados Unidos','Washington','us','América do Norte'],['Estônia','Tallinn','ee','Europa'],
+  ['Etiópia','Adis Abeba','et','África'],['Fiji','Suva','fj','Oceania'],
+  ['Filipinas','Manila','ph','Ásia'],['Finlândia','Helsinque','fi','Europa'],
+  ['França','Paris','fr','Europa'],['Gabão','Libreville','ga','África'],
+  ['Gâmbia','Banjul','gm','África'],['Gana','Acra','gh','África'],
+  ['Geórgia','Tbilisi','ge','Ásia'],['Grécia','Atenas','gr','Europa'],
+  ['Guatemala','Cidade da Guatemala','gt','América do Norte'],['Guiana','Georgetown','gy','América do Sul'],
+  ['Guiné','Conacri','gn','África'],['Guiné-Bissau','Bissau','gw','África'],
+  ['Guiné Equatorial','Malabo','gq','África'],['Haiti','Porto Príncipe','ht','América do Norte'],
+  ['Honduras','Tegucigalpa','hn','América do Norte'],['Hungria','Budapeste','hu','Europa'],
+  ['Índia','Nova Délhi','in','Ásia'],['Indonésia','Jacarta','id','Ásia'],
+  ['Irlanda','Dublin','ie','Europa'],['Islândia','Reykjavik','is','Europa'],
+  ['Itália','Roma','it','Europa'],['Jamaica','Kingston','jm','América do Norte'],
+  ['Japão','Tóquio','jp','Ásia'],['Jordânia','Amã','jo','Ásia'],
+  ['Kuwait','Cidade do Kuwait','kw','Ásia'],['Laos','Vientiane','la','Ásia'],
+  ['Lesoto','Maseru','ls','África'],['Letônia','Riga','lv','Europa'],
+  ['Libéria','Monróvia','lr','África'],['Lituânia','Vilnius','lt','Europa'],
+  ['Luxemburgo','Luxemburgo','lu','Europa'],['Madagascar','Antananarivo','mg','África'],
+  ['Malásia','Kuala Lumpur','my','Ásia'],['Malaui','Lilongwe','mw','África'],
+  ['Maldivas','Malé','mv','Ásia'],['Mali','Bamako','ml','África'],
+  ['Malta','Valeta','mt','Europa'],['Marrocos','Rabat','ma','África'],
+  ['Maurício','Port Louis','mu','África'],['Mauritânia','Nouakchott','mr','África'],
+  ['México','Cidade do México','mx','América do Norte'],['Moçambique','Maputo','mz','África'],
+  ['Moldávia','Chisinau','md','Europa'],['Mongólia','Ulan Bator','mn','Ásia'],
+  ['Montenegro','Podgorica','me','Europa'],['Namíbia','Windhoek','na','África'],
+  ['Nepal','Catmandu','np','Ásia'],['Nicarágua','Manágua','ni','América do Norte'],
+  ['Níger','Niamey','ne','África'],['Nigéria','Abuja','ng','África'],
+  ['Noruega','Oslo','no','Europa'],['Nova Zelândia','Wellington','nz','Oceania'],
+  ['Omã','Mascate','om','Ásia'],['Países Baixos','Amsterdã','nl','Europa'],
+  ['Panamá','Cidade do Panamá','pa','América do Norte'],['Paquistão','Islamabad','pk','Ásia'],
+  ['Paraguai','Assunção','py','América do Sul'],['Peru','Lima','pe','América do Sul'],
+  ['Polônia','Varsóvia','pl','Europa'],['Portugal','Lisboa','pt','Europa'],
+  ['Quênia','Nairóbi','ke','África'],['Quirguistão','Bisqueque','kg','Ásia'],
+  ['Reino Unido','Londres','gb','Europa'],['República Checa','Praga','cz','Europa'],
+  ['República Dominicana','Santo Domingo','do','América do Norte'],['Romênia','Bucareste','ro','Europa'],
+  ['Ruanda','Kigali','rw','África'],['Rússia','Moscou','ru','Europa'],
+  ['Senegal','Dacar','sn','África'],['Serra Leoa','Freetown','sl','África'],
+  ['Sérvia','Belgrado','rs','Europa'],['Singapura','Singapura','sg','Ásia'],
+  ['Sri Lanka','Colombo','lk','Ásia'],['Suécia','Estocolmo','se','Europa'],
+  ['Suíça','Berna','ch','Europa'],['Suriname','Paramaribo','sr','América do Sul'],
+  ['Tailândia','Banguecoque','th','Ásia'],['Tanzânia','Dodoma','tz','África'],
+  ['Timor-Leste','Díli','tl','Ásia'],['Togo','Lomé','tg','África'],
+  ['Tunísia','Tunes','tn','África'],['Turquia','Ancara','tr','Ásia'],
+  ['Uganda','Kampala','ug','África'],['Uruguai','Montevidéu','uy','América do Sul'],
+  ['Uzbequistão','Tasquente','uz','Ásia'],['Vaticano','Cidade do Vaticano','va','Europa'],
+  ['Venezuela','Caracas','ve','América do Sul'],['Vietnã','Hanói','vn','Ásia'],
+  ['Zâmbia','Lusaca','zm','África'],['Zimbábue','Harare','zw','África']
+];
+
+const ALT = {
+  'Brasília':'Brasília|Brasilia','Pequim':'Pequim|Beijing','Tóquio':'Tóquio|Toquio|Tokyo',
+  'Nova Délhi':'Nova Délhi|Nova Delhi|Nova Deli','Seul':'Seul|Seoul','Jacarta':'Jacarta|Jakarta',
+  'Washington':'Washington|Washington DC|Washington D.C.','Amsterdã':'Amsterdã|Amsterdam|Amesterdão',
+  'Nairóbi':'Nairóbi|Nairobi','Dacar':'Dacar|Dakar','Acra':'Acra|Accra',
+  'Adis Abeba':'Adis Abeba|Addis Abeba','Hanói':'Hanói|Hanoi','Banguecoque':'Banguecoque|Bangkok',
+  'Estados Unidos':'Estados Unidos|EUA|USA','Países Baixos':'Países Baixos|Holanda',
+  'Reino Unido':'Reino Unido|Inglaterra|Gra-Bretanha','Ásia':'Ásia|Asia','África':'África|Africa',
+  'América do Sul':'América do Sul|America do Sul','América do Norte':'América do Norte|America do Norte'
+};
+function A(s){ return ALT[s] || s; }
+
+PAISES.forEach(([pais, cap, iso, cont]) => {
+  PAIS_INFO[pais] = pais + ' fica no continente ' + cont + '. A capital é ' + cap + '. A bandeira deste país representa a sua identidade.';
+  PAIS_INFO[cap] = cap + ' é a capital de ' + pais + ', no continente ' + cont + '.';
+  if (cont === 'África') PAIS_INFO[pais] += ' A África tem muitos países, culturas e paisagens diferentes.';
+  if (cont === 'Ásia') PAIS_INFO[pais] += ' A Ásia é o maior continente do mundo.';
+  if (cont === 'Europa') PAIS_INFO[pais] += ' A Europa tem muitos países e uma história longa.';
+  if (cont === 'América do Sul') PAIS_INFO[pais] += ' A América do Sul fica no hemisfério sul da Terra.';
+  if (cont === 'América do Norte') PAIS_INFO[pais] += ' A América do Norte fica no hemisfério norte.';
+  if (cont === 'Oceania') PAIS_INFO[pais] += ' A Oceania reúne países e ilhas no oceano Pacífico.';
+});
+
+const PLANETAS = [
+  ['Mercúrio','🟠','Mercúrio|Mercurio'],
+  ['Vênus','🟡','Vênus|Venus'],
+  ['Terra','🌍','Terra'],
+  ['Marte','🔴','Marte'],
+  ['Júpiter','🟤','Júpiter|Jupiter'],
+  ['Saturno','🪐','Saturno'],
+  ['Urano','🔵','Urano'],
+  ['Netuno','💙','Netuno'],
+  ['Lua','🌙','Lua'],
+  ['Sol','☀️','Sol']
+];
+
+const ANIMAIS = [
+  ['Leão','🦁','Leão|Leao'],
+  ['Elefante','🐘','Elefante'],
+  ['Girafa','🦒','Girafa'],
+  ['Pinguim','🐧','Pinguim'],
+  ['Tigre','🐯','Tigre'],
+  ['Urso','🐻','Urso'],
+  ['Cachorro','🐶','Cachorro|Cão|Cao'],
+  ['Gato','🐱','Gato'],
+  ['Cavalo','🐴','Cavalo'],
+  ['Vaca','🐮','Vaca'],
+  ['Baleia','🐋','Baleia'],
+  ['Golfinho','🐬','Golfinho'],
+  ['Coruja','🦉','Coruja'],
+  ['Abelha','🐝','Abelha'],
+  ['Borboleta','🦋','Borboleta'],
+  ['Macaco','🐵','Macaco'],
+  ['Coelho','🐰','Coelho'],
+  ['Sapo','🐸','Sapo'],
+  ['Peixe','🐟','Peixe'],
+  ['Pássaro','🐦','Pássaro|Passaro']
+];
+
+const FAMILIA = [
+  ['Como se chama o pai da sua mãe?','Avô|Avo|Vovô|Vovo'],
+  ['Como se chama a mãe do seu pai?','Avó|Avo|Vovó|Vovo'],
+  ['O irmão do seu pai é o seu…','Tio'],
+  ['A irmã da sua mãe é a sua…','Tia'],
+  ['O filho do seu tio é o seu…','Primo'],
+  ['A filha da sua tia é a sua…','Prima'],
+  ['Como as crianças chamam o papai?','Pai|Papai|Papa'],
+  ['Como as crianças chamam a mamãe?','Mãe|Mae|Mamãe|Mamae'],
+  ['O irmão homem se chama…','Irmão|Irmao'],
+  ['A irmã mulher se chama…','Irmã|Irma'],
+  ['O filho homem dos pais se chama…','Filho'],
+  ['A filha mulher dos pais se chama…','Filha'],
+  ['Os pais, os filhos e os avós juntos formam a…','Família|Familia'],
+  ['Quem cuida dos filhos em casa, o pai e a…','Mãe|Mae'],
+  ['O avô e a avó são os…','Avós|Avos']
+];
+
+const ESPORTE = [
+  ['Quantos jogadores cada time tem em campo no futebol?','11|onze'],
+  ['Quando a bola entra, marca-se um…','Gol'],
+  ['Quem defende o gol é o…','Goleiro|Guarda-redes'],
+  ['O objeto redondo do futebol é a…','Bola'],
+  ['O futebol moderno nasceu em qual país?','Inglaterra|Reino Unido'],
+  ['A Copa do Mundo de futebol acontece de quantos em quantos anos?','4|quatro'],
+  ['Qual é o esporte mais popular do Brasil?','Futebol'],
+  ['Uma partida de futebol tem dois tempos de quantos minutos?','45|quarenta e cinco'],
+  ['Pelé jogava qual esporte?','Futebol'],
+  ['Quantos anéis tem o símbolo das Olimpíadas?','5|cinco'],
+  ['As Olimpíadas de verão acontecem de quantos em quantos anos?','4|quatro'],
+  ['Em que esporte se usa uma raquete e uma bolinha amarela?','Tênis|Tenis'],
+  ['Quantos pontos vale um lance livre no basquete?','1|um'],
+  ['O lugar gramado onde se joga futebol é o…','Campo|Estádio|Estadio'],
+  ['O juiz do jogo de futebol também é chamado de…','Árbitro|Arbitro|Juiz']
+];
+
+const CIENCIA = [
+  ['Qual gás nós respiramos e as plantas soltam?','Oxigênio|Oxigenio|O2'],
+  ['Qual órgão bombeia o sangue?','Coração|Coracao'],
+  ['Qual órgão usamos para pensar?','Cérebro|Cerebro'],
+  ['A Terra gira em volta de quê?','Sol'],
+  ['O giro da Terra em si mesma se chama…','Rotação|Rotacao'],
+  ['A volta da Terra em torno do Sol se chama…','Translação|Translacao'],
+  ['Quantas horas tem um dia?','24|vinte e quatro'],
+  ['Quantos dias tem um ano comum?','365'],
+  ['A água ferve a quantos graus Celsius?','100|cem'],
+  ['A água congela a quantos graus Celsius?','0|zero'],
+  ['Qual é o símbolo químico da água?','H2O|H2o'],
+  ['Em que ano o ser humano pisou na Lua?','1969'],
+  ['Quem inventou a lâmpada elétrica mais famosa?','Edison|Thomas Edison'],
+  ['A fotossíntese acontece principalmente na…','Folha|Folhas'],
+  ['Um animal que come só plantas é…','Herbívoro|Herbivoro']
+];
+
+const EXTRA = [
+  {cat:'História', q:'Em que ano começou a Primeira Guerra Mundial?', a:'1914'},
+  {cat:'História', q:'Em que ano terminou a Primeira Guerra Mundial?', a:'1918'},
+  {cat:'História', q:'O Armistício da Primeira Guerra foi em 11 de novembro de qual ano?', a:'1918'},
+  {cat:'História', q:'O Tratado de Versalhes foi assinado em que ano?', a:'1919'},
+  {cat:'História', q:'Qual organização de países surgiu após a Primeira Guerra?', a:'Liga das Nações|Sociedade das Nações'},
+  {cat:'História', q:'Os EUA entraram na Primeira Guerra em que ano?', a:'1917'},
+  {cat:'História', q:'A Tríplice Entente tinha França, Reino Unido e qual outro país no início?', a:'Rússia|Russia'},
+  {cat:'História', q:'Em que ano começou a Segunda Guerra Mundial na Europa?', a:'1939'},
+  {cat:'História', q:'Em que ano terminou a Segunda Guerra Mundial?', a:'1945'},
+  {cat:'História', q:'A Alemanha invadiu qual país em 1939, no início da Segunda Guerra?', a:'Polônia|Polonia'},
+  {cat:'História', q:'Os EUA entraram na Segunda Guerra em que ano?', a:'1941'},
+  {cat:'História', q:'Pearl Harbor fica em qual arquipélago?', a:'Havaí|Hawai|Hawaii'},
+  {cat:'História', q:'O Dia D foi em que ano?', a:'1944'},
+  {cat:'História', q:'O desembarque do Dia D foi na Normandia, em qual país?', a:'França|Franca'},
+  {cat:'História', q:'Qual organização mundial foi criada em 1945?', a:'ONU|Organização das Nações Unidas'},
+  {cat:'História', q:'A sede da ONU fica em qual cidade?', a:'Nova York|Nova Iorque'},
+  {cat:'História', q:'O Brasil entrou na Segunda Guerra em que ano?', a:'1942'},
+  {cat:'História', q:'A FEB brasileira lutou principalmente em qual país?', a:'Itália|Italia'},
+  {cat:'História', q:'Alemanha, Itália e Japão formaram o…', a:'Eixo'},
+  {cat:'História', q:'Churchill foi primeiro-ministro de qual país?', a:'Reino Unido|Inglaterra'},
+  {cat:'História', q:'Roosevelt foi presidente de qual país?', a:'Estados Unidos|EUA'},
+  {cat:'História', q:'Quantas guerras mundiais houve no século XX?', a:'2|duas'},
+  {cat:'História', q:'O atentado de 1914 foi em qual cidade?', a:'Sarajevo'},
+  {cat:'História', q:'A Carta da ONU foi assinada em 1945 em qual cidade dos EUA?', a:'São Francisco|San Francisco'},
+  {cat:'Espaço', q:'Quantos planetas tem o Sistema Solar?', a:'8|oito'},
+  {cat:'Espaço', q:'Qual planeta é o mais próximo do Sol?', a:'Mercúrio|Mercurio'},
+  {cat:'Espaço', q:'Qual é o maior planeta?', a:'Júpiter|Jupiter'},
+  {cat:'Espaço', q:'Qual planeta tem anéis bem visíveis?', a:'Saturno'},
+  {cat:'Espaço', q:'Qual planeta é vermelho?', a:'Marte'},
+  {cat:'Espaço', q:'Em que ano o ser humano pisou na Lua?', a:'1969'},
+  {cat:'Espaço', q:'Quem foi o primeiro homem na Lua?', a:'Neil Armstrong|Armstrong'},
+  {cat:'Espaço', q:'Qual o nome da missão da primeira pisada na Lua?', a:'Apollo 11|Apolo 11'},
+  {cat:'Espaço', q:'Qual foi o primeiro satélite artificial?', a:'Sputnik|Sputnik 1'},
+  {cat:'Espaço', q:'Quem foi o primeiro humano no espaço?', a:'Gagarin|Iuri Gagarin|Yuri Gagarin'},
+  {cat:'Espaço', q:'Gagarin foi ao espaço em que ano?', a:'1961'},
+  {cat:'Espaço', q:'A Via Láctea é o nome da nossa…', a:'Galáxia|Galaxia'},
+  {cat:'Espaço', q:'A agência espacial dos EUA se chama…', a:'NASA'},
+  {cat:'Espaço', q:'A luz do Sol chega à Terra em cerca de 8…', a:'Minutos'},
+  {cat:'Geografia', q:'Qual é o maior oceano?', a:'Pacífico|Oceano Pacífico'},
+  {cat:'Geografia', q:'Qual é o menor oceano?', a:'Ártico|Oceano Ártico|Artico'},
+  {cat:'Geografia', q:'Quantos continentes existem no modelo escolar mais comum?', a:'7|sete'},
+  {cat:'Geografia', q:'Qual é o maior continente?', a:'Ásia|Asia'},
+  {cat:'Geografia', q:'Qual é o rio mais longo da África?', a:'Nilo'},
+  {cat:'Geografia', q:'Qual é o maior rio da América do Sul?', a:'Amazonas|Rio Amazonas'},
+  {cat:'Geografia', q:'Qual é a montanha mais alta do mundo?', a:'Everest|Monte Everest'},
+  {cat:'Geografia', q:'Qual é o maior país em área?', a:'Rússia|Russia'},
+  {cat:'Geografia', q:'Qual é o menor país do mundo?', a:'Vaticano'},
+  {cat:'Geografia', q:'Qual linha divide Norte e Sul da Terra?', a:'Equador'},
+  {cat:'Geografia', q:'O Brasil fica em qual continente?', a:'América do Sul|America do Sul'}
+];
+
+function qKey(x){
+  return (x.q||'') + '|' + (x.a||'') + '|' + (x.img||'') + '|' + (x.emoji||'');
+}
+function uniqueList(list){
+  const seen = new Set();
+  const out = [];
+  list.forEach(x => {
+    const k = qKey(x);
+    if (seen.has(k)) return;
+    seen.add(k);
+    out.push(x);
+  });
+  return out;
+}
+function pool(cat, list){
+  const base = uniqueList(list.map(x => Object.assign({cat}, x)));
+  return shuffle(base, 100 + cat.length);
+}
+
+function makePools(){
+  const cap = [], geo = [], band = [];
+  PAISES.forEach(([pais, capi, iso, cont]) => {
+    cap.push({q:'Qual é a capital de ' + pais + '?', a:A(capi)});
+    cap.push({q:capi + ' é a capital de qual país?', a:A(pais)});
+    geo.push({q:pais + ' fica em qual continente?', a:A(cont)});
+    geo.push({q:'Qual país da ' + cont + ' tem a capital ' + capi + '?', a:A(pais)});
+    band.push({q:'Qual país tem esta bandeira?', a:A(pais), img:flag(iso), only:true});
+    band.push({q:'Esta bandeira é de qual país?', a:A(pais), img:flag(iso), only:true});
+  });
+  EXTRA.filter(e => e.cat === 'Geografia').forEach(e => geo.push({q:e.q, a:e.a}));
+  const espaco = [];
+  PLANETAS.forEach(([, emoji, acc]) => {
+    espaco.push({q:'O que aparece nesta imagem?', a:acc, emoji, only:true});
+    espaco.push({q:'Qual planeta ou astro é este?', a:acc, emoji, only:true});
+  });
+  EXTRA.filter(e => e.cat === 'Espaço').forEach(e => espaco.push({q:e.q, a:e.a}));
+  const hist = EXTRA.filter(e => e.cat === 'História').map(e => ({q:e.q, a:e.a}));
+  const anim = [];
+  ANIMAIS.forEach(([, emoji, acc]) => {
+    anim.push({q:'O que aparece nesta imagem?', a:acc, emoji, only:true});
+    anim.push({q:'Qual animal é este?', a:acc, emoji, only:true});
+  });
+  anim.push({q:'Qual animal é chamado de rei da selva?', a:'Leão|Leao'});
+  anim.push({q:'Qual inseto produz mel?', a:'Abelha'});
+  anim.push({q:'Qual é o maior animal do mundo?', a:'Baleia-azul|Baleia azul|Baleia'});
+  anim.push({q:'Qual animal terrestre é o mais alto?', a:'Girafa'});
+  anim.push({q:'Quantas patas tem uma aranha?', a:'8|oito'});
+  const fam = FAMILIA.map(([q,a]) => ({q,a}));
+  const esp = ESPORTE.map(([q,a]) => ({q,a}));
+  const cie = CIENCIA.map(([q,a]) => ({q,a}));
+  return {
+    Capitais: pool('Capitais', cap),
+    Geografia: pool('Geografia', geo),
+    Bandeiras: pool('Bandeiras', band),
+    Espaço: pool('Espaço', espaco),
+    História: pool('História', hist),
+    Animais: pool('Animais', anim),
+    Família: pool('Família', fam),
+    Esporte: pool('Esporte', esp),
+    Ciência: pool('Ciência', cie)
+  };
+}
+
+function seeded(seed){
+  let s = seed >>> 0;
+  return function(){
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+function shuffle(arr, seed){
+  const r = seeded(seed);
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(r() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const POOLS = makePools();
+const MIX_ORDER = [
+  ['Animais',4],['Família',3],['Esporte',3],['Espaço',4],
+  ['História',3],['Geografia',4],['Bandeiras',3],['Capitais',3],['Ciência',3]
+];
+const LEVELS = [];
+const BANK = [];
+const catCursor = {};
+Object.keys(POOLS).forEach(c => { catCursor[c] = 0; });
+function factKey(item){
+  return (item.a||'') + '|' + (item.img||'') + '|' + (item.emoji||'') + '|' + (item.cat||'');
+}
+function nextFromPool(cat, used){
+  const arr = POOLS[cat];
+  if (!arr || !arr.length) return null;
+  for (let t = 0; t < arr.length; t++) {
+    const idx = (catCursor[cat] + t) % arr.length;
+    const item = arr[idx];
+    const k = qKey(item);
+    const f = factKey(item);
+    if (used.has(k) || used.has(f)) continue;
+    catCursor[cat] = (idx + 1) % arr.length;
+    used.add(k);
+    used.add(f);
+    return item;
+  }
+  return null;
+}
+for (let lv = 0; lv < 500; lv++) {
+  const pack = [];
+  const used = new Set();
+  MIX_ORDER.forEach(([cat, n]) => {
+    for (let k = 0; k < n; k++) {
+      const item = nextFromPool(cat, used);
+      if (item) pack.push(item);
+    }
+  });
+  LEVELS.push(shuffle(pack, 3000 + lv));
+  LEVELS[lv].forEach(q => BANK.push(q));
+}
+
+let filter = 'todos';
+let view = [];
+let lvl = 0;
+let qi = 0;
+let score = 0;
+const done = new Set();
+const annulled = new Set();
+const SAVE_KEY = 'mundo500_progress_v1';
+
+function keyOf(item){ return (item.cat + '|' + item.q + '|' + (item.img||'') + '|' + (item.emoji||'') + '|' + (item.round||1)); }
+
+function save(){
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      filter, lvl, qi, score,
+      done: Array.from(done),
+      annulled: Array.from(annulled)
+    }));
+  } catch (e) {}
+}
+
+function load(){
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    const s = JSON.parse(raw);
+    if (typeof s.filter === 'string') filter = s.filter;
+    if (typeof s.lvl === 'number') lvl = s.lvl;
+    if (typeof s.qi === 'number') qi = s.qi;
+    if (typeof s.score === 'number') score = s.score;
+    if (Array.isArray(s.done)) s.done.forEach(x => done.add(x));
+    if (Array.isArray(s.annulled)) s.annulled.forEach(x => annulled.add(x));
+    return true;
+  } catch (e) { return false; }
+}
+
+function rebuildView(){
+  if (filter === 'todos') {
+    view = LEVELS.map(arr => arr.slice());
+  } else {
+    const flat = BANK.filter(x => x.cat === filter);
+    const pack = [];
+    for (let i = 0; i < flat.length; i += 30) pack.push(flat.slice(i, i + 30));
+    view = pack.length ? pack : LEVELS.map(arr => arr.slice());
+  }
+  if (lvl >= view.length) lvl = Math.max(0, view.length - 1);
+  if (!view[lvl] || qi >= view[lvl].length) qi = 0;
+}
+
+function applyFilter(){
+  filter = document.getElementById('filtro').value;
+  rebuildView();
+  lvl = 0; qi = 0;
+  save();
+  show();
+}
+
+function cur(){ return view[lvl][qi]; }
+
+function show(){
+  const item = cur();
+  const niveis = view.length;
+  const perguntas = view[lvl].length;
+  document.getElementById('lvl').textContent = 'Nível ' + (lvl+1) + ' / ' + niveis;
+  document.getElementById('pq').textContent = 'Pergunta ' + (qi+1) + ' / ' + perguntas;
+  document.getElementById('cat').textContent = item.cat;
+  document.getElementById('score').textContent = 'Acertos: ' + score;
+  document.getElementById('jump').value = lvl+1;
+  document.getElementById('jump').max = niveis;
+  const totalQ = view.reduce((s,a)=>s+a.length,0);
+  const doneQ = view.slice(0,lvl).reduce((s,a)=>s+a.length,0) + qi + 1;
+  document.getElementById('prog').style.width = (doneQ / totalQ * 100) + '%';
+
+  const qEl = document.getElementById('q');
+  const pic = document.getElementById('pic');
+  const img = document.getElementById('img');
+  pic.innerHTML = '';
+  if (item.emoji) {
+    pic.style.display = 'block';
+    const e = document.createElement('div');
+    e.className = 'emoji-big';
+    e.textContent = item.emoji;
+    pic.appendChild(e);
+    qEl.textContent = item.only ? 'O que aparece nesta imagem?' : item.q;
+  } else if (item.img) {
+    pic.style.display = 'block';
+    const im = document.createElement('img');
+    im.alt = item.only ? 'Imagem para identificar' : 'Imagem de apoio';
+    im.src = item.img;
+    im.onerror = function(){
+      this.style.display = 'none';
+      const e = document.createElement('div');
+      e.className = 'emoji-big';
+      e.textContent = '🏳️';
+      pic.appendChild(e);
+    };
+    pic.appendChild(im);
+    qEl.textContent = item.only ? 'O que aparece nesta imagem?' : item.q;
+  } else {
+    pic.style.display = 'none';
+    qEl.textContent = item.q;
+  }
+
+  document.getElementById('ans').value = '';
+  const box = document.getElementById('box');
+  const msg = document.getElementById('msg');
+  const info = document.getElementById('info');
+  const k = keyOf(item);
+  if (annulled.has(k) || done.has(k)) {
+    if (annulled.has(k)) {
+      box.style.display = 'block';
+      box.innerHTML =
+        '<span class="ans-label">Resposta correta</span>' +
+        '<span class="ans-value">' + String(item.a).split('|')[0] + '</span>' +
+        '<span class="ans-note">Pergunta anulada — não vale ponto</span>';
+      msg.style.color = '#6d4c41';
+      msg.textContent = 'Esta pergunta foi anulada.';
+    } else {
+      box.style.display = 'none';
+      box.innerHTML = '';
+      msg.style.color = '#2e7d32';
+      msg.textContent = 'Você já acertou esta pergunta.';
+    }
+    showInfo(item);
+  } else {
+    box.style.display = 'none';
+    box.innerHTML = '';
+    msg.textContent = '';
+    if (info) { info.style.display = 'none'; info.innerHTML = ''; }
+    setTimeout(function(){ speakQuestion(); }, 250);
+  }
+}
+
+function check(){
+  const item = cur();
+  const k = keyOf(item);
+  const msg = document.getElementById('msg');
+  if (annulled.has(k)) {
+    msg.style.color = '#6d4c41';
+    msg.textContent = 'Esta pergunta foi anulada porque a resposta foi revelada.';
+    return;
+  }
+  const val = document.getElementById('ans').value;
+  if (!val.trim()) {
+    msg.style.color = '#ef6c00';
+    msg.textContent = 'Escreva uma resposta ou aperte Ver resposta.';
+    return;
+  }
+  if (ok(val, item.a)) {
+    msg.style.color = '#2e7d32';
+    msg.textContent = 'Acertou! 🌟';
+    speak('Acertou');
+    if (!done.has(k)) { done.add(k); score++; }
+    document.getElementById('score').textContent = 'Acertos: ' + score;
+    showInfo(item);
+    save();
+  } else {
+    msg.style.color = '#c62828';
+    msg.textContent = 'Errou. Tente de novo ou veja a resposta.';
+    speak('Errou');
+    const info = document.getElementById('info');
+    if (info) info.style.display = 'none';
+  }
+}
+
+function reveal(){
+  const item = cur();
+  const k = keyOf(item);
+  if (done.has(k)) {
+    document.getElementById('msg').style.color = '#2e7d32';
+    document.getElementById('msg').textContent = 'Você já tinha acertado esta pergunta.';
+    showInfo(item);
+    return;
+  }
+  annulled.add(k);
+  const resp = String(item.a).split('|')[0];
+  document.getElementById('box').style.display = 'block';
+  document.getElementById('box').innerHTML =
+    '<span class="ans-label">Resposta correta</span>' +
+    '<span class="ans-value">' + resp + '</span>' +
+    '<span class="ans-note">Pergunta anulada — não vale ponto</span>';
+  document.getElementById('msg').style.color = '#6d4c41';
+  document.getElementById('msg').textContent = 'Você pediu a resposta. Esta pergunta não vale ponto.';
+  showInfo(item);
+  save();
+}
+
+function clearAns(){
+  document.getElementById('ans').value = '';
+  document.getElementById('msg').textContent = '';
+  const info = document.getElementById('info');
+  if (info) { info.style.display = 'none'; info.innerHTML = ''; }
+}
+
+function nextQ(){
+  if (qi < view[lvl].length - 1) qi++;
+  else if (lvl < view.length - 1) { lvl++; qi = 0; }
+  save();
+  show();
+}
+function prevQ(){
+  if (qi > 0) qi--;
+  else if (lvl > 0) { lvl--; qi = view[lvl].length - 1; }
+  save();
+  show();
+}
+function jumpTo(){
+  const n = parseInt(document.getElementById('jump').value, 10);
+  if (!n || n < 1 || n > view.length) return;
+  lvl = n - 1; qi = 0;
+  save();
+  show();
+}
+
+function resetProgress(){
+  if (!confirm('Tem certeza? Isso apaga o nível salvo e os acertos neste aparelho.')) return;
+  localStorage.removeItem(SAVE_KEY);
+  done.clear();
+  annulled.clear();
+  score = 0;
+  lvl = 0;
+  qi = 0;
+  filter = 'todos';
+  document.getElementById('filtro').value = 'todos';
+  rebuildView();
+  show();
+}
+
+document.getElementById('ans').addEventListener('keydown', e => { if (e.key === 'Enter') check(); });
+load();
+const filtroEl = document.getElementById('filtro');
+if (filtroEl) filtroEl.value = filter;
+rebuildView();
+show();
+save();
+</script>
+</body>
+</html>
